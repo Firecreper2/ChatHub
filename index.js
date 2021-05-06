@@ -94,15 +94,6 @@ app.get("/getmessage", (req, res) => {
             return;
         }
     }
-    
-    if (message.startsWith("/clear qwerty")) {
-        for (let i = 0; i <= 30; i++) {
-            msgList.shift();
-        }
-        msgList.push(timestamp + "Chat cleared by admin")
-        fs.writeFileSync(__dirname + "/messages.json", JSON.stringify(msgList, null, 4))
-        return
-    }
     while (msgList.length > 100) {
         msgList.shift();
     }

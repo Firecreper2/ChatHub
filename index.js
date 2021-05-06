@@ -12,6 +12,7 @@ const term = require('terminal-kit').terminal;
 const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const port = 80
 const net = networkInterfaces()
+const colors = require("colors")
 app.use(cookieParser())
 
 app.get('/', (req, res) => {
@@ -20,15 +21,15 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
     if(socket.request.headers.cookie){
-        console.log(socket.request.headers.cookie.split("=")[1].split(";")[0]+" Connected")
+        console.log(socket.request.headers.cookie.split("=")[1].split(";")[0]+" Connected".green)
     }else{
-        console.log("An anonymous user joined");
+        console.log("An anonymous user joined".blue);
     }
     socket.on('chat message', (msg) => {
         io.emit("chat message", msg)
     })
     socket.on('disconnect', (socket)=>{
-        console.log("Someone disconnected");
+        console.log("Someone disconnected".red);
     })
 })
 

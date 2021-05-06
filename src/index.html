@@ -4,7 +4,11 @@
 <head>
     <title>ChatHub v1</title>
     <link rel="stylesheet" href="./style.css">
+    <script src="/socket.io/socket.io.js"></script>
     <script src="./script.js"></script>
+<script>
+  var socket = io();
+</script>
 </head>
 
 <body onload="load()">
@@ -18,18 +22,19 @@
     <button onclick="resetText()" type="submit">Send</button>
     
     <h4>Changelog</h4>
+    <h3>API REVAMP (check network)</h3>
+    <h3>Much better + unexploitable code will be made soon</h3>
+    <h4>Will be ChatHub v2.0</h4>
     <ul>
         <li>Username implementation</li>
         <li>Scrolling chat</li>
-        <li>HOTFIX: No reload on send message</li>
-        <li>10ms response times</li>
+        <li>No reload on send message</li>
     </ul>
     <h4>Todo</h4>
     <ul>
-        <li>Better UI</li>
+        <li>Better UI (set for 2.0)</li>
         <li>Multiple channels?</li>
     </ul>
-    
 </body>
 
 </html>

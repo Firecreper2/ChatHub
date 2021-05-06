@@ -1,18 +1,35 @@
 const express = require('express');
 const fs = require('fs');
+const http = require('http')
 const cookieParser = require('cookie-parser');
 const { networkInterfaces } = require('os');
 const Cookies = require('cookies');
 const app = express()
-var term = require('terminal-kit').terminal;
-var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-const { time } = require('console');
-app.use(cookieParser())
+const { Server } = require('socket.io')
+const server = http.createServer(app);
+const io = new Server(server)
+const term = require('terminal-kit').terminal;
+const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const port = 80
 const net = networkInterfaces()
+app.use(cookieParser())
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/src/index.html');
+})
+
+io.on('connection', (socket) => {
+    if(socket.request.headers.cookie){
+        console.log(socket.request.headers.cookie.split("=")[1].split(";")[0]+" Connected")
+    }else{
+        console.log("An anonymous user joined");
+    }
+    socket.on('chat message', (msg) => {
+        io.emit("chat message", msg)
+    })
+    socket.on('disconnect', (socket)=>{
+        console.log("Someone disconnected");
+    })
 })
 
 app.get("/getmessage", (req, res) => {
@@ -27,18 +44,32 @@ app.get("/getmessage", (req, res) => {
     let users = fs.readFileSync("./users.json")
     let timeofday = "AM"
     users = JSON.parse(users)
-    if(hour > 12){
+    if (hour > 12) {
         timeofday = "PM"
         hour = hour - 12
-        if(hour < 9){
-            hour = "0"+hour
+        if (hour < 9) {
+            hour = "0" + hour
         }
     }
+    if(minutes < 10){
+        minutes = "0"+minutes
+    }
     timestamp = `[${hour}:${minutes} ${timeofday}] `
-    if(req.query.adminMode){
+    if (req.query.adminMode) {
+        if(message == "/reload"){
+            io.emit("reload")
+            return
+        }
+        if(message == "/clear"){
+            msgList = ["Chat has been cleared by console"];
+            io.emit("chat message")
+            fs.writeFileSync(__dirname + "/messages.json", JSON.stringify(msgList, null, 4))
+            return
+        }
         msgList.push(timestamp + "Console: " + message);
         console.log(timestamp + "Console: " + message)
         fs.writeFileSync(__dirname + "/messages.json", JSON.stringify(msgList, null, 4))
+        io.emit("chat message")
         return
     }
     if (!username) {
@@ -63,7 +94,7 @@ app.get("/getmessage", (req, res) => {
             return;
         }
     }
-
+    
     if (message.startsWith("/clear qwerty")) {
         for (let i = 0; i <= 30; i++) {
             msgList.shift();
@@ -138,11 +169,11 @@ app.get("/loginuser", (req, res) => {
     }
     res.sendFile(__dirname + "/src/login/invalidLogin.html")
 })
-function termInputField(){
+function termInputField() {
     term.inputField(
         function (error, input) {
             let xhttp = new XMLHttpRequest();
-            xhttp.open("GET", "http://" + net['Wi-Fi'][net['Wi-Fi'].length-1]['address'] + "/getmessage?adminMode=true&messagebox=" + input, true);
+            xhttp.open("GET", "http://" + net['Wi-Fi'][net['Wi-Fi'].length - 1]['address'] + "/getmessage?adminMode=true&messagebox=" + input, true);
             xhttp.send();
             term("\n")
             termInputField()
@@ -152,6 +183,7 @@ function termInputField(){
 termInputField()
 
 
-app.listen(port, () => {
-    console.log(`Now listening at http://${net['Wi-Fi'][net['Wi-Fi'].length-1]['address']}`)
+server.listen(port, () => {
+    console.log(`Now listening at http://${net['Wi-Fi'][net['Wi-Fi'].length - 1]['address']}`)
 })
+//https://socket.io/get-started/chat

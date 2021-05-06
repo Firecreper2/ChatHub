@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatHub Login</title>
+    <link rel="stylesheet" href="./login.css">
+    <script>
+        alert("This username has been taken!")
+    </script>
+</head>
+
+<body>
+    <div id="title">
+        <h1>ChatHub Signup</h1>
+    </div>
+    <div id="login-wrapper">
+        <br>
+        <form method="GET" action="/signupuser">
+        <div id="user-wrapper">
+            <span id="userText">Username:</span> <br>
+            <input type="text" name="username" id="userInput"><br>
+        </div>
+        <br>
+        <div id="pass-wrapper">
+            Password: <br>
+            <input type="password" name="password" id="password"><br>
+        </div>
+        <br>
+        <button onclick="console.log('logging in with username '+document.getElementById('userInput').value)" type="submit">Login</button>
+        </form>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,59 @@
+#login-wrapper{
+    border: rgb(221, 221, 221) 1px solid;
+    border-radius: 10px;
+    width: 300px;
+    height: 200px;
+    background-color: rgb(221, 221, 221);
+    margin: auto;
+    top: 75px;
+    position: relative;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    color: #789922;
+    font-size: small;
+}
+#signup{
+    border: rgb(221, 221, 221) 1px solid;
+    border-radius: 10px;
+    width: 300px;
+    height: 50px;
+    background-color: rgb(221, 221, 221);
+    margin: auto;
+    top: 90px;
+    position: relative;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    color: #789922;
+    font-size: small;
+    text-align: center;
+}
+#user-wrapper{
+    margin: auto;
+    width: 70%;
+}
+#pass-wrapper{
+    margin: auto;
+    width: 70%;
+}
+#forgot-wrapper{
+    text-align: center;
+}
+#title{
+    position: relative;
+    text-align: center;
+}
+input{
+    width: 200px;
+    border-radius: 5px;
+    border-color: rgba(0, 0, 0, 0);
+}
+button{
+    margin: auto;
+    display: block;
+    width: 200px;
+    border-radius: 4px;
+    border-color: rgba(0, 0, 0, 0);
+    cursor: pointer;
+}
+body{
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    background-color: rgb(190,190,190);
+}

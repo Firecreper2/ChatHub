@@ -1,0 +1,23 @@
+{
+  "name": "hack-me",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "cookies": "^0.8.0",
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "pug": "^3.0.2",
+    "terminal-kit": "^2.1.0",
+    "url": "^0.11.0",
+    "xmlhttprequest": "^1.8.0"
+  }
+}

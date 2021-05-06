@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>ChatHub v1</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="./script.js"></script>
+</head>
+
+<body onload="load()">
+    <button onclick="window.location.href = '/login.html'">Login</button>
+    <div id="title">
+        <h4>DOWNTIMES: 8:55-9:05 10:25-12:40</h4>
+    </div>
+    
+    <div id="chat-box" onload="document.getElementById('chat-box').scrollTo(0,9999999)"></div>
+    Message:&nbsp;&nbsp;&nbsp;<input type="text" placeholder="message" id="msgbox" name="messagebox">
+    <button onclick="resetText()" type="submit">Send</button>
+    
+    <h4>Changelog</h4>
+    <ul>
+        <li>Username implementation</li>
+        <li>Scrolling chat</li>
+        <li>HOTFIX: No reload on send message</li>
+        <li>10ms response times</li>
+    </ul>
+    <h4>Todo</h4>
+    <ul>
+        <li>Better UI</li>
+        <li>Multiple channels?</li>
+    </ul>
+    
+</body>
+
+</html>

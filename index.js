@@ -12,7 +12,14 @@ const term = require('terminal-kit').terminal;
 const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const port = 80
 const net = networkInterfaces()
-const colors = require("colors")
+const colors = require("colors");
+const { Console } = require('console');
+let userCount = 0;
+let admins = {
+    "firecreper": "",
+    "kman": ""
+}
+let activeUsers = []
 app.use(cookieParser())
 
 app.get('/', (req, res) => {
@@ -20,21 +27,46 @@ app.get('/', (req, res) => {
 })
 
 io.on('connection', (socket) => {
-    if(socket.request.headers.cookie){
-        console.log(socket.request.headers.cookie.split("=")[1].split(";")[0]+" Connected".green)
-    }else{
+    let username;
+    if (socket.request.headers.cookie) {
+        console.log(socket.request.headers.cookie.split("=")[1].split(";")[0] + " Connected".green)
+        username = socket.request.headers.cookie.split("=")[1].split(";")[0];
+    } else {
         console.log("An anonymous user joined".blue);
     }
+    userCount++
+    if (socket.request.headers.cookie == undefined) {
+        random = "Anonymous " + Math.floor(Math.random() * 9).toString() + Math.floor(Math.random() * 9).toString() + Math.floor(Math.random() * 9).toString()
+        socket.request.headers.cookie = random
+        activeUsers.push(random)
+        activeUsers.sort()
+        io.emit("user join", activeUsers)
+    } else {
+        activeUsers.push(username)
+        activeUsers.sort()
+        io.emit("user join", activeUsers)
+    }
+    activeUsers.sort()
+    console.log("Join: ", activeUsers)
     socket.on('chat message', (msg) => {
-        io.emit("chat message", msg)
+        io.emit("chat message")
     })
-    socket.on('disconnect', (socket)=>{
-        console.log("Someone disconnected".red);
+    socket.on('disconnect', (socket) => {
+        console.log(username + " disconnected".red);
+        activeUsers.splice(activeUsers.indexOf(username), 1)
+        if (username == undefined) {
+            io.emit("user leave", activeUsers)
+            return
+        }
+        activeUsers.sort()
+        console.log("Leave: ", activeUsers)
+        io.emit("user leave", activeUsers)
     })
 })
 
 app.get("/getmessage", (req, res) => {
-    let message = req.query.messagebox
+    let message = req.query.messagebox.split("")
+    message = message.join("")
     let msgList = JSON.parse(fs.readFileSync(__dirname + "/messages.json"));
     let timestamp = new Date()
     let hour = timestamp.getHours()
@@ -52,26 +84,33 @@ app.get("/getmessage", (req, res) => {
             hour = "0" + hour
         }
     }
-    if(minutes < 10){
-        minutes = "0"+minutes
+    if (minutes < 10) {
+        minutes = "0" + minutes
     }
     timestamp = `[${hour}:${minutes} ${timeofday}] `
-    if (req.query.adminMode) {
-        if(message == "/reload"){
+    if (admins[username] != undefined || req.query.adminMode) {
+        if (message == "/reload") {
             io.emit("reload")
             return
         }
-        if(message == "/clear"){
+        if (message == "/clear") {
             msgList = ["Chat has been cleared by console"];
-            io.emit("chat message")
             fs.writeFileSync(__dirname + "/messages.json", JSON.stringify(msgList, null, 4))
+            io.emit("chat message")
             return
         }
-        msgList.push(timestamp + "Console: " + message);
-        console.log(timestamp + "Console: " + message)
-        fs.writeFileSync(__dirname + "/messages.json", JSON.stringify(msgList, null, 4))
-        io.emit("chat message")
-        return
+        if (message == "/clearcache") {
+            activeUsers = []
+            io.emit("reload")
+            return
+        }
+        if (req.query.adminMode) {
+            msgList.push(timestamp + "Console: " + message);
+            console.log(timestamp + "Console: " + message)
+            fs.writeFileSync(__dirname + "/messages.json", JSON.stringify(msgList, null, 4))
+            io.emit("chat message")
+            return
+        }
     }
     if (!username) {
         random = "Anonymous " + Math.floor(Math.random() * 9).toString() + Math.floor(Math.random() * 9).toString() + Math.floor(Math.random() * 9).toString()
@@ -101,6 +140,20 @@ app.get("/getmessage", (req, res) => {
 
     msgList.push(timestamp + username + ": " + message);
     fs.writeFileSync(__dirname + "/messages.json", JSON.stringify(msgList, null, 4))
+    if(msgList[msgList.length-1].includes("%")){
+        let percentMsg = msgList[msgList.length-1].split("")
+        for(let i = 0; i < percentMsg.length; i++){
+            if(percentMsg[i] == "%" && percentMsg[i+1] == "2" && percentMsg[i+2] == "0"){
+                percentMsg[i] = " "
+                percentMsg[i+1] = ""
+                percentMsg[i+2] = ""
+                
+            }
+        }
+        msgList[msgList.length-1] = percentMsg.join("")
+        fs.writeFileSync(__dirname + "/messages.json", JSON.stringify(msgList, null, 4))
+    }
+    io.emit("chat message")
 
     console.log(msgList[msgList.length - 1])
 
@@ -127,6 +180,12 @@ app.get("/signup.html", (req, res) => {
 })
 app.get("/signup.css", (req, res) => {
     res.sendFile(__dirname + "/src/signup/signup.css")
+})
+app.get("/favicon.ico", (req,res)=>{
+    res.sendFile(__dirname + "/favicon.ico")
+})
+app.get("/audio.mp3", (req,res)=>{
+    res.sendFile(__dirname + "/src/audio.mp3")
 })
 app.get("/signupuser", (req, res) => {
     let username = req.query.username
@@ -167,13 +226,13 @@ function termInputField() {
             let xhttp = new XMLHttpRequest();
             xhttp.open("GET", "http://" + net['Wi-Fi'][net['Wi-Fi'].length - 1]['address'] + "/getmessage?adminMode=true&messagebox=" + input, true);
             xhttp.send();
+            io.emit("chat message",input)
             term("\n")
             termInputField()
         }
     )
 }
 termInputField()
-
 
 server.listen(port, () => {
     console.log(`Now listening at http://${net['Wi-Fi'][net['Wi-Fi'].length - 1]['address']}`)

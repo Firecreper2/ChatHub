@@ -2,13 +2,14 @@
 <html lang="en">
 
 <head>
-    <title>ChatHub v1</title>
+    <title>My Drive - Google Drive</title>
     <link rel="stylesheet" href="./style.css">
+    <link rel="shortcut icon" type="image/jpg" href="http://10.64.229.68/favicon.ico"/>
     <script src="/socket.io/socket.io.js"></script>
     <script src="./script.js"></script>
-<script>
-  var socket = io();
-</script>
+    <script>
+        var socket = io();
+    </script>
 </head>
 
 <body onload="load()">
@@ -16,17 +17,40 @@
     <div id="title">
         <h4>DOWNTIMES: 8:55-9:05 10:25-12:40</h4>
     </div>
-    
+
     <div id="chat-box" onload="document.getElementById('chat-box').scrollTo(0,9999999)"></div>
+    <div id="users">
+        <span id="users-title">
+            <h3>Active Users</h3>
+        </span>
+        <span class="test user-entry">Test User</span>
+    </div>
     Message:&nbsp;&nbsp;&nbsp;<input type="text" placeholder="message" id="msgbox" name="messagebox">
     <button onclick="resetText()" type="submit">Send</button>
-    
+    <br>
+    <img src="https://img.icons8.com/material-sharp/2x/room-sound.png" alt="Toggle sound" style="width: 20px; height: 20px; opacity: 0.5;" onclick="toggleAudio()" id="togglesound">
+
     <h4>Changelog</h4>
-    <h3>API REVAMP (check network)</h3>
+    5/14/2021
+    <ul>
+        <li>Fixed user list</li>
+    </ul>
+    5/13/2021
+    <ul>
+        <li>Removed usercount</li>
+        <li>Added user list</li>
+    </ul>
+    5/10/2021
+    <ul>
+        <li>Better CSS</li>
+        <li>Emotes</li>
+    </ul>
+    5/7/2021
     <ul>
         <li>Username implementation</li>
         <li>Scrolling chat</li>
         <li>No reload on send message</li>
+        <li>Fixed network usage</li>
     </ul>
     <h4>Todo</h4>
     <ul>

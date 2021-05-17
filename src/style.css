@@ -21,3 +21,17 @@ h4{
 #chat-box{
     background: #ffffff;
 }
+#users{
+    position: absolute;
+    width: 300px;
+    height: 490px;
+    border: 1px black solid;
+    border-left: 0px;
+    top: 49px;
+    right: 28px;
+    background-color: lightgray;
+}
+#users span{
+    position: relative;
+    left: 10px;
+}

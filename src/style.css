@@ -20,6 +20,7 @@ h4{
 }
 #chat-box{
     background: #ffffff;
+    scrollbar-color: "yellow red";  
 }
 #users{
     position: absolute;

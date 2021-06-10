@@ -1,0 +1,36 @@
+Full changelog
+
+
+6/3/2021
+
+-- Discord integration. Watch your mouth
+    
+5/21/2021
+    
+-- Working images!!! 8kb size limit tho
+    
+5/14/2021
+    
+-- Fixed user list
+    
+5/13/2021
+    
+-- Removed usercount
+-- Added user list
+    
+5/10/2021
+    
+-- Better CSS
+-- Emotes
+    
+5/7/2021
+    
+-- Username implementation
+-- Scrolling chat
+-- No reload on send message
+-- Fixed network usage
+    
+Todo
+    
+-- Multiple channels?
+    

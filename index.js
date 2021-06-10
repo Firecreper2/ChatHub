@@ -1,3 +1,4 @@
+
 const express = require('express');
 const fs = require('fs');
 const http = require('http')
@@ -14,13 +15,14 @@ const port = 80
 const net = networkInterfaces()
 const colors = require("colors");
 const { Console } = require('console');
-let userCount = 0;
+const spawn = require("child_process").spawn;
 let admins = {
     "firecreper": "",
     "kman": ""
 }
 let activeUsers = []
 app.use(cookieParser())
+app.use(express.static(__dirname+'/static/'))
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/src/index.html');
@@ -30,21 +32,23 @@ io.on('connection', (socket) => {
     let username;
     if (socket.request.headers.cookie) {
         console.log(socket.request.headers.cookie.split("=")[1].split(";")[0] + " Connected".green)
+        if (admins[socket.request.headers.cookie.split("=")[1].split(";")[0]] != undefined) {
+            io.emit("log", socket.request.headers.cookie.split("=")[1].split(";")[0] + " Connected")
+        }
+
         username = socket.request.headers.cookie.split("=")[1].split(";")[0];
-    } else {
-        console.log("An anonymous user joined".blue);
-    }
-    userCount++
-    if (socket.request.headers.cookie == undefined) {
-        random = "Anonymous " + Math.floor(Math.random() * 9).toString() + Math.floor(Math.random() * 9).toString() + Math.floor(Math.random() * 9).toString()
-        socket.request.headers.cookie = random
-        activeUsers.push(random)
-        activeUsers.sort()
-        io.emit("user join", activeUsers)
-    } else {
+
         activeUsers.push(username)
         activeUsers.sort()
         io.emit("user join", activeUsers)
+    } else {
+        random = "Anonymous " + Math.floor(Math.random() * 9).toString() + Math.floor(Math.random() * 9).toString() + Math.floor(Math.random() * 9).toString()
+        socket.request.headers.cookie = random
+        username = random
+        activeUsers.push(random)
+        activeUsers.sort()
+        io.emit("user join", activeUsers)
+        console.log("An anonymous user joined".blue);
     }
     activeUsers.sort()
     console.log("Join: ", activeUsers)
@@ -53,26 +57,39 @@ io.on('connection', (socket) => {
     })
     socket.on('disconnect', (socket) => {
         console.log(username + " disconnected".red);
+        if (username != undefined) {
+            io.emit("log", username + " disconnected")
+        }
+        if (activeUsers.indexOf(username) == -1) {
+            return
+        }
         activeUsers.splice(activeUsers.indexOf(username), 1)
+        console.log(activeUsers)
+
         if (username == undefined) {
             io.emit("user leave", activeUsers)
             return
         }
         activeUsers.sort()
-        console.log("Leave: ", activeUsers)
         io.emit("user leave", activeUsers)
     })
 })
 
 app.get("/getmessage", (req, res) => {
-    let message = req.query.messagebox.split("")
-    message = message.join("")
+    let message = req.query.messagebox
+    if (!message || message.includes("⣿") || message.includes('⣆') || message.includes('⣦')) {
+        return
+    }
     let msgList = JSON.parse(fs.readFileSync(__dirname + "/messages.json"));
     let timestamp = new Date()
     let hour = timestamp.getHours()
     let minutes = timestamp.getMinutes()
     let username = req.cookies['username']
     let password = req.cookies['password']
+    if(req.query.discordInt){
+        username = "Discord"
+        password = "e"
+    }
     let cookies = new Cookies(req, res)
     let users = fs.readFileSync("./users.json")
     let timeofday = "AM"
@@ -94,7 +111,7 @@ app.get("/getmessage", (req, res) => {
             return
         }
         if (message == "/clear") {
-            msgList = ["Chat has been cleared by console"];
+            msgList = [timestamp+" Chat has been cleared by console"];
             fs.writeFileSync(__dirname + "/messages.json", JSON.stringify(msgList, null, 4))
             io.emit("chat message")
             return
@@ -103,6 +120,11 @@ app.get("/getmessage", (req, res) => {
             activeUsers = []
             io.emit("reload")
             return
+        }
+        if (message == "/restart" && req.query.adminMode) {
+            console.log("Restarting...")
+            child = spawn("powershell.exe",["C:\\Users\\1590891\\Documents\\GitHub\\Hack-Me\\start.bat"]);
+            return;
         }
         if (req.query.adminMode) {
             msgList.push(timestamp + "Console: " + message);
@@ -129,7 +151,7 @@ app.get("/getmessage", (req, res) => {
         }
     }
     for (i in users) {
-        if (users[req.cookies["username"]] != req.cookies['password']) {
+        if (users[req.cookies["username"]] != req.cookies['password'] && req.query.discordInt == undefined) {
             res.sendFile(__dirname + "/src/login/login.html")
             return;
         }
@@ -137,20 +159,19 @@ app.get("/getmessage", (req, res) => {
     while (msgList.length > 100) {
         msgList.shift();
     }
-
     msgList.push(timestamp + username + ": " + message);
     fs.writeFileSync(__dirname + "/messages.json", JSON.stringify(msgList, null, 4))
-    if(msgList[msgList.length-1].includes("%")){
-        let percentMsg = msgList[msgList.length-1].split("")
-        for(let i = 0; i < percentMsg.length; i++){
-            if(percentMsg[i] == "%" && percentMsg[i+1] == "2" && percentMsg[i+2] == "0"){
+    if (msgList[msgList.length - 1].includes("%")) {
+        let percentMsg = msgList[msgList.length - 1].split("")
+        for (let i = 0; i < percentMsg.length; i++) {
+            if (percentMsg[i] == "%" && percentMsg[i + 1] == "2" && percentMsg[i + 2] == "0") {
                 percentMsg[i] = " "
-                percentMsg[i+1] = ""
-                percentMsg[i+2] = ""
-                
+                percentMsg[i + 1] = ""
+                percentMsg[i + 2] = ""
+
             }
         }
-        msgList[msgList.length-1] = percentMsg.join("")
+        msgList[msgList.length - 1] = percentMsg.join("")
         fs.writeFileSync(__dirname + "/messages.json", JSON.stringify(msgList, null, 4))
     }
     io.emit("chat message")
@@ -181,10 +202,10 @@ app.get("/signup.html", (req, res) => {
 app.get("/signup.css", (req, res) => {
     res.sendFile(__dirname + "/src/signup/signup.css")
 })
-app.get("/favicon.ico", (req,res)=>{
-    res.sendFile(__dirname + "/favicon.ico")
+app.get("/favicon.ico", (req, res) => {
+    res.sendFile(__dirname + "/src/favicon.ico")
 })
-app.get("/audio.mp3", (req,res)=>{
+app.get("/audio.mp3", (req, res) => {
     res.sendFile(__dirname + "/src/audio.mp3")
 })
 app.get("/signupuser", (req, res) => {
@@ -226,7 +247,7 @@ function termInputField() {
             let xhttp = new XMLHttpRequest();
             xhttp.open("GET", "http://" + net['Wi-Fi'][net['Wi-Fi'].length - 1]['address'] + "/getmessage?adminMode=true&messagebox=" + input, true);
             xhttp.send();
-            io.emit("chat message",input)
+            io.emit("chat message", input)
             term("\n")
             termInputField()
         }

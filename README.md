@@ -8,4 +8,4 @@ Warning - VERY inefficient
 3. Create file "messages.json" with contents "[]"
 4. Create file "users.json" with contents "{}"
 5. Run `node .`
-![image of website](https://lh6.googleusercontent.com/orGR-LPGICvsdnP9Uc1N7sLKOWJYaH9vYnD7AzQnLJhUR-oZmvUL4pUaOeZVb2mUH4UC1m-s0VwuG6N_pLSJlVSqcahSkyVZCaO6gj7YVSz0IyPk_0UapGkc_Ps0UARGdA=w1280)
+![image of website](https://github.com/dylann123/Hack-Me/blob/main/image.png?raw=true)
